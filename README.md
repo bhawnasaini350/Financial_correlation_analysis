@@ -45,6 +45,7 @@ plt.legend()
 plt.title('Nifty vs Bank Nifty Closing Price')
 plt.show()
 ```
+
 📌 **Observation:** Both indices move together, indicating a strong relationship.
 ### **Why Use the ADF Test (Augmented Dickey-Fuller) for Nifty vs. Bank Nifty Analysis?**  
 
