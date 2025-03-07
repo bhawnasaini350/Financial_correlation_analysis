@@ -47,23 +47,23 @@ plt.show()
 ```
 <h1 align="center">
  <img src="https://github.com/bhawnasaini350/Financial_correlation_analysis/blob/main/nifty%20vs%20ban%20nifty%20closin%20price.png ">
-📌 **Observation:** Both indices move together, indicating a strong relationship.
-### **Why Use the ADF Test (Augmented Dickey-Fuller) for Nifty vs. Bank Nifty Analysis?**  
+📌 Observation: Both indices move together, indicating a strong relationship.
+Why Use the ADF Test (Augmented Dickey-Fuller) for Nifty vs. Bank Nifty Analysis?  
 
-The **ADF Test (Augmented Dickey-Fuller Test)** is used to check if a **time series is stationary or not**. 
+The ADF Test (Augmented Dickey-Fuller Test) is used to check if a time series is stationary or not. 
 This is important in financial data analysis because:  
 
-1. **Stationary Data is Required for Many Models**  
-   - Financial time series data (e.g., Nifty 50, Bank Nifty) is often **non-stationary**.  
-   - If the data is non-stationary, models like **linear regression, Granger causality, and ARIMA** may not work properly.  
+1. Stationary Data is Required for Many Models  
+   - Financial time series data (e.g., Nifty 50, Bank Nifty) is often non-stationary.  
+   - If the data is non-stationary, models like linear regression, Granger causality, and ARIMA may not work properly.  
 
-2. **Removes Trends and Seasonality**  
-   - If the ADF test shows that the data is non-stationary, we need to **differentiate** or transform the data before analysis.  
-   - Stationarity ensures that statistical properties like **mean and variance remain constant over time**.  
+2. Removes Trends and Seasonality  
+   - If the ADF test shows that the data is non-stationary, we need to differentiate or transform the data before analysis.  
+   - Stationarity ensures that statistical properties like mean and variance remain constant over time.  
 
 ---
 
-### **📌 Why Not Use Other Tests Instead of ADF?**
+📌 Why Not Use Other Tests Instead of ADF?
 
 | **Test** | **Why Not Use It?** |
 |----------|---------------------|
@@ -74,7 +74,7 @@ This is important in financial data analysis because:
 
 ---
 
-### **📌 When to Use ADF Test?**
+ **📌 When to Use ADF Test?**
 ✅ Before applying **Granger Causality**, Regression, or ARIMA models.  
 ✅ To check if Nifty and Bank Nifty follow a trend.  
 ✅ If p-value > 0.05 → **Data is non-stationary** (must be differenced).  
@@ -102,6 +102,8 @@ sns.heatmap(df.corr(), annot=True, cmap="coolwarm")
 plt.title("Correlation Matrix")
 plt.show()
 ```
+<h1 align="center">
+ <img src=" https://github.com/bhawnasaini350/Financial_correlation_analysis/blob/main/correlation%20marix.png">
 📌 **Insight:** If correlation is **0.95**, Bank Nifty and Nifty 50 are highly interdependent.
 
 ### **Why Use Pearson Correlation for Nifty & Bank Nifty?**  
@@ -144,6 +146,8 @@ rolling_corr = df['nifty'].rolling(window=30).corr(df['bank_nifty'])
 rolling_corr.plot(title="Rolling Correlation (30 Days)")
 plt.show()
 ```
+<h1 align="center">
+ <img src=" https://github.com/bhawnasaini350/Financial_correlation_analysis/blob/main/rolling%20correlation.png">
 📌 **Market Insight:** Variations in rolling correlation indicate **economic shifts, regulatory changes, or market movements.**
 
 ### 7️⃣ Granger Causality Test 🤔
