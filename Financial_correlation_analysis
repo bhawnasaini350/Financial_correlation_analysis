@@ -1,0 +1,119 @@
+from cProfile import label
+
+import pandas as pd      # used for handling and manipulating structured data ( Data Frame)
+import numpy as  np      #used for numerical computation, such as handling arrays and mathematical operations
+import matplotlib.pyplot as plt    # used for plotting graphs and visualizing trend in data
+import seaborn as sns     #used for advance data visualization ( heatmap, correlation plots, pair plots)
+from matplotlib.pyplot import figure
+from statsmodels.tsa.stattools import adfuller, grangercausalitytests
+# adfuller: used to check if the time series is stationary ( ADF test)
+# grangercausalitytests: check if one time series another ( granger causality test)
+
+
+# step 2 : Load Data
+# Option : Using API
+import requests # used to send HTTP requests to financial data API
+
+API_KEY = "285NSNNFW3VM7HE7"
+# URLs for fetching  Nifty 50 and Bank Nifty data from Alpha Vintage
+
+# Alternative APIs for Stock Data
+#If you don't want to use Alpha Vantage, here are other APIs for financial data:
+# Yahoo Finance API (via yfinance library)
+# NSE India API (for Indian markets)
+# IEX Cloud API
+# Quandl API
+
+
+#Alpha Vantage provides structured URLs to fetch financial data. The URL follows this format:
+
+# https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY
+# &symbol=SYMBOL_NAME
+# &interval=TIME_INTERVAL
+# &apikey=YOUR_API_KEY
+# &outputsize=full
+# For Nifty 50, replace:
+
+# SYMBOL_NAME with "NIFTY"
+# TIME_INTERVAL with "1min" for minute-level data.
+# YOUR_API_KEY with your actual API key.
+
+#url_nifty = f"https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=RELIANCE.BSE&interval=1min&apikey={API_KEY}&outputsize=full"
+#url_bank_nifty = f"https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=BANKNIFTY&interval=1min&apikey={API_KEY}&outputsize=full"
+
+# send url request and get json responses:
+#response_nifty = requests.get(url_nifty).json()
+#response_bank_nifty = requests.get(url_bank_nifty).json()
+#print(response_nifty)
+#print(response_bank_nifty)
+
+#Alpha Vantage does not support Bank Nifty (or Nifty 50) directly through the TIME_SERIES_INTRADAY API. NSE indices are not available in their dataset.
+#Since Alpha Vantage does not provide Bank Nifty data, you can use Yahoo Finance, which supports Indian indices.
+
+
+# step 1 install yfinance
+# pip install yfinance
+
+# step 2  Fetch Bank Nifty Data
+import yfinance as yf
+
+# fetch Bank nifty historical data
+bank_nifty = yf.download("^NSEBANK", start="2015-01-01",end="2025-01-01",interval="1d")
+nifty = yf.download("^NSEI", start="2015-01-01", end="2025-01-01",interval="1d")
+
+#print(bank_nifty.info()) # check data types and missing values
+#print(nifty.info()) # here are no missing values
+
+
+# Ensure both datasets are aligned by their timestamp:
+df = pd.concat([nifty['Close'], bank_nifty['Close']], axis=1) # combining close price data
+df.columns = ['nifty','bank_nifty'] # Renaming column for clarity
+df.dropna(inplace=True) #Dropping any remaining any missing values
+#df.to_excel("fiancialcorrelation_analysis1.xlsx")
+
+# step 4: Exploratory data analysis (EDA)
+# plotting nifty vs. bank nifty closing price over time:
+plt.figure(figsize=(12,6))
+plt.plot(df.index, df['nifty'], label='Nifty',alpha=0.7) # nifty closing price
+plt.plot(df.index,df['bank_nifty'], label='Bank_nifty',alpha=0.7) # bank nifty closing price
+plt.legend() # Adding a legend for clarity
+plt.title('Nifty vs Bank Nifty Closing Price')
+plt.show() #Display The Plot
+
+
+# Check Stationary Using the Augumented Dicky Fuller test ( ADF)
+# The ADF test check whether the time series is stationary ( important for time series modelling)
+result = adfuller(df['nifty'])
+#print(" Nifty ADF Statistic:", result[0], "P-value", result[1]) # if p-value <0.05, data is stationary
+result1 = adfuller(df['bank_nifty'])
+#print(" Bank Nifty ADF Statistic:", result[0], "P-value", result[1])
+
+
+# step 5 Correlation Analysis:
+# compute pearson correlation to measure the linear relationship b/w Nifty and Bank nifty
+sns.heatmap(df.corr(),annot=True, cmap="coolwarm")
+plt.title("Correlation Matrix")
+plt.show()
+
+# step 6 Rolling correlation analysis
+# Calculate  rolling correlation over 30 days window to observe changes in correlation over time
+rolling_corr = df['nifty'].rolling(window=30).corr(df['bank_nifty'])
+rolling_corr.plot(title=" Rolling Correlation (30- days)") # plot rolling correlation
+plt.show()
+
+# 🔹 Step 7: Granger Causality Test
+# This test checks if past values of one time series help predict another
+# maxlag=5 means testing causality up to 5 previous time steps
+#grangercausalitytests(df[['nifty', 'bank_nifty']],maxlag=5)
+#grangercausalitytests(df[['bank_nifty','nifty']],maxlag=5)
+#🔹 All p-values are > 0.05, meaning we fail to reject the null hypothesis (H₀).
+#📌 This confirms that Nifty does NOT Granger-cause Bank Nifty.
+
+
+#🚀 Insights from Analysis
+#✅ If correlation is 0.95 → Bank Nifty and Nifty 50 are highly interdependent.
+#✅ Rolling correlation changes → Indicates market shifts, economic impacts, or regulatory changes.
+#✅ Significant Granger causality → Suggests that one index might be a predictor of the other.
+
+
+
